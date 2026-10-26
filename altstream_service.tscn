@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://ftqgj0blohwh"]
+
+[ext_resource type="Script" uid="uid://cgvv14spyr8cm" path="res://addons/altstreamer/altstream_service.gd" id="1_su4a8"]
+
+[node name="AltstreamService" type="Node" unique_id=691018450]
+script = ExtResource("1_su4a8")
+autoconnect = null
+channel = null
