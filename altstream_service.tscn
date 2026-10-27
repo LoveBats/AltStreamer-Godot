@@ -4,5 +4,3 @@
 
 [node name="AltstreamService" type="Node" unique_id=691018450]
 script = ExtResource("1_su4a8")
-autoconnect = null
-channel = null

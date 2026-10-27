@@ -65,6 +65,9 @@ func alt_connect(channel_connect: String = channel) -> void:
 	else:
 		print("EventStream not disconnected, could not initiate new connection.")
 
+func alt_disconnect() -> void:
+	client.close()
+
 func _on_event_received(_event: String, data: String) -> void:
 	var messages := JSON.parse_string(data) as Array
 	if not messages: return
