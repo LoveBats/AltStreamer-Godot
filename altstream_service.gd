@@ -5,39 +5,24 @@ const HOST		:= "https://altstream.online"
 const API_ENDPOINT	:= "/api"
 const CHAT_ENDPOINT	:= "/chat/stream?channel=%s"
 
-class User:
-	var username: String
-	var display_name: String
-	var avatar_url: String
-	var user_color: Color
-
-class Message:
-	var id: String
-	var text: String
-	var sent_at: int
-	var sticker_url: String
-	var reply_to_id: String
-	var reply_to_username: String
-	var reply_to_display_name: String
-
 signal connected
 signal disconnected
 signal connection_failed
 
-signal chat_message_received(user: User, message: Message)
-signal chat_message_pinned(user: User, message: Message, pinned_by: String)
+signal chat_message_received(user: AltStreamUser, message: AltStreamMessage)
+signal chat_message_pinned(user: AltStreamUser, message: AltStreamMessage, pinned_by: String)
 signal chat_message_unpinned()
 signal chat_message_deleted(message_id: String)
 signal chat_cleared()
 
-signal highlight_received(user: User, message: Message, reward_name: String)
+signal highlight_received(user: AltStreamUser, message: AltStreamMessage, reward_name: String)
 
-signal raid_incoming(from: User, raider_count: int)
-signal raid_outgoing_started(target: User, viewer_count: int, countdown: int)
+signal raid_incoming(from: AltStreamUser, raider_count: int)
+signal raid_outgoing_started(target: AltStreamUser, viewer_count: int, countdown: int)
 signal raid_outgoing_canceled()
 
-signal reward_redeemed(user: User, message_id: int, reward_name: String, user_input: String)
-signal shoutout(target: User, game_name: String, game_cover_url: String, shouted_by: User)
+signal reward_redeemed(user: AltStreamUser, message_id: int, reward_name: String, user_input: String)
+signal shoutout(target: AltStreamUser, game_name: String, game_cover_url: String, shouted_by: AltStreamUser)
 
 @export var autoconnect := true
 @export var channel := ""
@@ -135,7 +120,7 @@ func _on_event_received(_event: String, data: String) -> void:
 					chat_cleared.emit()
 
 				"[RAID_START]":
-					var target := User.new()
+					var target := AltStreamUser.new()
 					target.username     = _try_get_string(obj, "targetUsername")
 					target.display_name = _try_get_string(obj, "targetDisplayName")
 					target.avatar_url   = _try_get_string(obj, "targetImage")
@@ -155,7 +140,7 @@ func _on_event_received(_event: String, data: String) -> void:
 						reward_redeemed.emit(user, message.id, reward_name, user_input)
 
 				"[SHOUTOUT]":
-					var target := User.new()
+					var target := AltStreamUser.new()
 					target.username     = _try_get_string(obj, "targetUsername")
 					target.display_name = _try_get_string(obj, "targetDisplayName")
 					target.avatar_url   = _try_get_string(obj, "targetAvatar")
@@ -196,8 +181,8 @@ static func _parse_color(value: String) -> Color:
 	var rgb := value.trim_prefix("#").hex_to_int()
 	return Color.hex((rgb << 16) | 0x000000FF)
 
-static func _user_from_msg(msg: Dictionary) -> User:
-	var user := User.new()
+static func _user_from_msg(msg: Dictionary) -> AltStreamUser:
+	var user := AltStreamUser.new()
 	user.username     = _try_get_string(msg, "authorUsername")
 	user.display_name = _try_get_string(msg, "author")
 	user.avatar_url   = _try_get_string(msg, "authorImage")
@@ -205,8 +190,8 @@ static func _user_from_msg(msg: Dictionary) -> User:
 		_try_get_string(msg, "userColor"))
 	return user
 
-static func _message_from_msg(msg: Dictionary) -> Message:
-	var message := Message.new()
+static func _message_from_msg(msg: Dictionary) -> AltStreamMessage:
+	var message := AltStreamMessage.new()
 	message.id          = _try_get_string(msg, "id")
 	message.text        = _try_get_string(msg, "text")
 	message.sent_at     = _try_get_int(msg, "sentAt")
