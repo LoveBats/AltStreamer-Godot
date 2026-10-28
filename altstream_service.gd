@@ -10,6 +10,7 @@ signal disconnected
 signal connection_failed
 
 signal chat_message_received(user: AltStreamUser, message: AltStreamMessage)
+signal chat_message_sticker_received(user: AltStreamUser, message_id: String, _name: String, url: String) # name currently unvailable
 signal chat_message_pinned(user: AltStreamUser, message: AltStreamMessage, pinned_by: String)
 signal chat_message_unpinned()
 signal chat_message_deleted(message_id: String)
@@ -21,7 +22,7 @@ signal raid_incoming(from: AltStreamUser, raider_count: int)
 signal raid_outgoing_started(target: AltStreamUser, viewer_count: int, countdown: int)
 signal raid_outgoing_canceled()
 
-signal reward_redeemed(user: AltStreamUser, message_id: int, reward_name: String, user_input: String)
+signal reward_redeemed(user: AltStreamUser, message_id: String, reward_name: String, user_input: String)
 signal shoutout(target: AltStreamUser, game_name: String, game_cover_url: String, shouted_by: AltStreamUser)
 
 @export var autoconnect := true
@@ -78,8 +79,11 @@ func _on_event_received(_event: String, data: String) -> void:
 		var user    := _user_from_msg(msg)
 
 		if source == "local":
-			if user.username and user.display_name and message.text:
-				chat_message_received.emit(user, message)
+			if user.username and user.display_name:
+				if message.text:
+					chat_message_received.emit(user, message)
+				elif message.sticker_url:
+					chat_message_sticker_received.emit(user, message.id, "", message.sticker_url)
 			return
 
 		# "Special" messages (for the lack of an official name) typically come
