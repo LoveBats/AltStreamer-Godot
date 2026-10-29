@@ -22,6 +22,8 @@ signal raid_incoming(from: AltStreamUser, raider_count: int)
 signal raid_outgoing_started(target: AltStreamUser, viewer_count: int, countdown: int)
 signal raid_outgoing_canceled()
 
+signal kofi_tip_received(from: AltStreamUser, type: String, amount: String, currency: String)
+
 signal reward_redeemed(user: AltStreamUser, message_id: String, reward_name: String, user_input: String)
 signal shoutout(target: AltStreamUser, game_name: String, game_cover_url: String, shouted_by: AltStreamUser)
 
@@ -155,6 +157,14 @@ func _on_event_received(_event: String, data: String) -> void:
 					var game_cover_url := _try_get_string(obj, "gameCover")
 					if target.username and target.display_name:
 						shoutout.emit(user, game_name, game_cover_url, user)
+
+				"[KOFI_TIP]":
+					user.username    = _try_get_string(obj, "from")
+					var amount      := _try_get_string(obj, "amount")
+					var currency    := _try_get_string(obj, "currency")
+					var type        := _try_get_string(obj, "type")
+					if user.username:
+						kofi_tip_received.emit(user, type, amount, currency)
 			return
 
 		# Incoming raid notifications have a unique text format that
